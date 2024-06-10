@@ -1,51 +1,4 @@
-# Use a base image with Java and Ant
-FROM openjdk:latest
-
-# Install Ant
-RUN apt-get update && \
-    apt-get install -y ant && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set the working directory inside the container
-WORKDIR /app
-
-# Copy the Go application source code into the container
-COPY . .
-
-# Build your Go application
-RUN go build -o myapp
-
-# Define the entry point for the container
-ENTRYPOINT [ "/app/gradleCliPlugin" ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Use the official Golang image as the base image
+# Use golang:1.22 as the builder stage
 FROM golang:1.22 as builder
 
 # Set the working directory
@@ -55,19 +8,27 @@ WORKDIR /app
 COPY go.mod go.sum ./
 
 # Download all dependencies (go.sum may be empty if there are no dependencies)
-#RUN go mod download all
+RUN go mod download
 
 # Copy the source code
 COPY . .
 
-#RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /drone-maven-plugin
+# Build the Go executable for amd64 architecture
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/drone-ant-plugin ./main.go
 
-# Use the official Maven image as the base image
-FROM maven:3.8.4-jdk-11
+# Use Alpine Linux as the base image for the final stage
+FROM alpine:latest
 
-ADD /drone-maven-plugin /bin/
-# Copy the built Go executable
-#COPY --from=builder /drone-maven-plugin /bin/drone-maven-plugin
+# Install Ant using apk
+RUN apk update && \
+    apk add --no-cache openjdk8 && \
+    apk add --no-cache apache-ant
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the built Go executable from the builder stage to the final stage
+COPY --from=builder /app/drone-ant-plugin /app/
 
 # Set the entrypoint to the Go executable
-ENTRYPOINT /bin/drone-maven-plugin
+ENTRYPOINT ["/app/drone-ant-plugin"]
