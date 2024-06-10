@@ -29,7 +29,7 @@ RUN apk update && \
 WORKDIR /app
 
 # Copy the built Go executable from the builder stage to the final stage
-COPY --from=builder /app/release/linux/amd64/drone-ant-plugin /app/
+COPY --from=builder /app/release/windows/amd64/drone-ant-plugin /app/
 
 # Set the entrypoint to the Go executable
 ENTRYPOINT ["/app/drone-ant-plugin"]
