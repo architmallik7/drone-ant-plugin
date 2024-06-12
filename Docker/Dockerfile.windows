@@ -1,22 +1,6 @@
 # Use golang:1.22 as the builder stage
 FROM golang:1.22 as builder
 
-# Set the working directory
-WORKDIR /app
-
-# Copy go.mod and go.sum files
-COPY go.mod go.sum ./
-
-# Download all dependencies (go.sum may be empty if there are no dependencies)
-RUN go mod download
-
-# Copy the source code
-COPY . .
-
-# Run the build script
-COPY scripts/build.sh .
-RUN chmod +x build.sh && ./build.sh
-
 # Use Alpine Linux as the base image for the final stage
 FROM alpine:latest
 
@@ -25,11 +9,8 @@ RUN apk update && \
     apk add --no-cache openjdk8 && \
     apk add --no-cache apache-ant
 
-# Set the working directory inside the container
-WORKDIR /app
-
 # Copy the built Go executable from the builder stage to the final stage
-COPY --from=builder /app/release/windows/amd64/drone-ant-plugin /app/
+COPY release/windows/amd64/drone-ant-plugin /bin/
 
 # Set the entrypoint to the Go executable
-ENTRYPOINT ["/app/drone-ant-plugin"]
+ENTRYPOINT ["/bin/drone-ant-plugin"]
