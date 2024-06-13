@@ -2,6 +2,7 @@
 
 - [Synopsis](#Synopsis)
 - [Plugin Image](#Plugin-Image)
+- [Parameters](#Parameters)
 - [Building](#building)
 - [Examples](#Examples)
 
@@ -20,6 +21,13 @@ The plugin `Rakshitharness/drone-ant-plugin` is available for the following arch
 | linux/amd64   | `linux-amd64`                      |
 | linux/arm64   | `linux-arm64`                      |
 | windows/amd64 | `windows-amd64`                    |
+
+## Parameters
+
+| Parameter                                                                        | Comments                                                                                                                                  |
+|:---------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| Goals <span style="font-size: 10px"></span>                       | An array of ant goals to run.                                                                     |
+
 
 
 ## Building
