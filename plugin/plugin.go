@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 // Args provides plugin execution arguments.
@@ -16,49 +17,30 @@ type Args struct {
 
 	// Level defines the plugin log level.
 	Level string `envconfig:"PLUGIN_LOG_LEVEL"`
+
+	// Goals defines the Ant targets/goals to execute.
+	Goals string `envconfig:"PLUGIN_GOALS"`
 }
 
 // Exec executes the plugin.
 func Exec(ctx context.Context, args Args) error {
-	// Run `ant -p` command to list available targets
-	listTargetsCmd := exec.Command("ant", "-p")
-	listTargetsOutput, listTargetsErr := listTargetsCmd.CombinedOutput()
-	if listTargetsErr != nil {
-		fmt.Println("Error running 'ant -p':", listTargetsErr)
-		fmt.Println(string(listTargetsOutput))
-		return fmt.Errorf("error running 'ant -p': %w", listTargetsErr)
+	// Check if goals are provided, if not set a default value
+	if args.Goals == "" {
+		args.Goals = "-version" // Default goal if none provided
 	}
-	fmt.Println("Output of 'ant -p':", string(listTargetsOutput))
 
-	// Run `ant build` command to build the project
-	buildCmd := exec.Command("ant", "build")
-	buildOutput, buildErr := buildCmd.CombinedOutput()
-	if buildErr != nil {
-		fmt.Println("Error running 'ant build':", buildErr)
-		fmt.Println(string(buildOutput))
-		return fmt.Errorf("error running 'ant build': %w", buildErr)
-	}
-	fmt.Println("Output of 'ant build':", string(buildOutput))
+	// Split the goals into individual targets
+	goals := strings.Fields(args.Goals)
 
-	// Run `ant run` command to run the sample application
-	runCmd := exec.Command("ant", "run")
-	runOutput, runErr := runCmd.CombinedOutput()
-	if runErr != nil {
-		fmt.Println("Error running 'ant run':", runErr)
-		fmt.Println(string(runOutput))
-		return fmt.Errorf("error running 'ant run': %w", runErr)
+	// Run `ant` command with specified goals
+	antCmd := exec.Command("ant", goals...)
+	antOutput, antErr := antCmd.CombinedOutput()
+	if antErr != nil {
+		fmt.Println("Error running 'ant "+args.Goals+"':", antErr)
+		fmt.Println(string(antOutput))
+		return fmt.Errorf("error running 'ant %s': %w", args.Goals, antErr)
 	}
-	fmt.Println("Output of 'ant run':", string(runOutput))
-
-	// Run `ant --version` command
-	versionCmd := exec.Command("ant", "-version")
-	versionOutput, versionErr := versionCmd.CombinedOutput()
-	if versionErr != nil {
-		fmt.Println("Error running 'ant -version':", versionErr)
-		fmt.Println(string(versionOutput))
-		return fmt.Errorf("error running 'ant -version': %w", versionErr)
-	}
-	fmt.Println("Output of 'ant -version':", string(versionOutput))
+	fmt.Println("Output of 'ant "+args.Goals+"':", string(antOutput))
 
 	return nil
 }
