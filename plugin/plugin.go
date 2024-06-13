@@ -24,10 +24,6 @@ type Args struct {
 
 // Exec executes the plugin.
 func Exec(ctx context.Context, args Args) error {
-	// Check if goals are provided, if not set a default value
-	if args.Goals == "" {
-		args.Goals = "-version" // Default goal if none provided
-	}
 
 	// Split the goals into individual targets
 	goals := strings.Fields(args.Goals)
