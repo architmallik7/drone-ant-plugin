@@ -13,3 +13,4 @@ export CGO_ENABLED=0
 GOOS=linux GOARCH=amd64 go build -o release/linux/amd64/drone-ant-plugin ./main.go
 GOOS=linux GOARCH=arm64 go build -o release/linux/arm64/drone-ant-plugin ./main.go
 
+GOOS=windows go build -o release/windows/amd64/drone-ant-plugin.exe
